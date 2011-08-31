@@ -2,6 +2,7 @@
 require "juicer/merger/base"
 require "juicer/dependency_resolver/css_dependency_resolver"
 require 'pathname'
+require 'digest/md5'
 
 module Juicer
   module Merger
@@ -20,7 +21,6 @@ module Juicer
         @dependency_resolver = CssDependencyResolver.new(options)
         super(files || [], options)
         @hosts = options[:hosts] || []
-        @host_num = 0
         @use_absolute = options.key?(:absolute_urls) ? options[:absolute_urls] : false
         @use_relative = options.key?(:relative_urls) ? options[:relative_urls] : false
         @document_root = options[:document_root]
@@ -90,8 +90,7 @@ module Juicer
 
         # Cycle hosts, if any
         if path =~ %r{^/} && @hosts.length > 0
-          path = File.join(@hosts[@host_num % @hosts.length], path)
-          @host_num += 1
+          path = File.join(@hosts[(Digest::MD5.hexdigest(path)[0...10].to_i(16) % @hosts.length)], path)
         end
 
         path
