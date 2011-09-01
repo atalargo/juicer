@@ -195,10 +195,10 @@ EOF
           @root = Pathname.new "/home/usr/design2/css"
         end
 
-        assert_equal "http://assets1/images/1.png", merger.resolve_path("/images/1.png", nil)
-        assert_equal "http://assets2/images/1.png", merger.resolve_path("/images/1.png", nil)
         assert_equal "http://assets3/images/1.png", merger.resolve_path("/images/1.png", nil)
-        assert_equal "http://assets1/images/1.png", merger.resolve_path("/images/1.png", nil)
+        assert_equal "http://assets3/images/1.png", merger.resolve_path("/images/1.png", nil)
+        assert_equal "http://assets3/images/1.png", merger.resolve_path("/images/1.png", nil)
+        assert_equal "http://assets3/images/1.png", merger.resolve_path("/images/1.png", nil)
       end
     end
 
@@ -216,7 +216,7 @@ EOF
         assert_equal "../images/1.png", merger.resolve_path("/images/1.png", nil)
       end
     end
-    
+
     should "leave data URLs untouched" do
       merger = Juicer::Merger::StylesheetMerger.new([],
                                                     :document_root => "test/data",
@@ -256,7 +256,7 @@ EOF
       @file_merger.save(ios)
       files = ios.string.scan(/url\(([^\)]*)\)/).collect { |f| f.first }
 
-      assert_equal "1/images/1.png::2/css/2.gif::3/a1.css::2/css/2.gif::1/a2.css".gsub(/(\d\/)/, 'http://assets\1'), files.join("::")
+      assert_equal "3/images/1.png::3/css/2.gif::1/a1.css::3/css/2.gif::1/a2.css".gsub(/(\d\/)/, 'http://assets\1'), files.join("::")
     end
   end
 end
