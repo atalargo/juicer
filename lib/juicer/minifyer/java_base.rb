@@ -34,6 +34,8 @@ module Juicer
       def initialize(options = {})
         bin = options.delete(:java) || "java"
         bin_path = options.delete(:bin_path) || nil
+        @workers = options.delete(:worker) || 1
+        @current_worker = 0
         @jar = nil
         @jar_args = nil
 

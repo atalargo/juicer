@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{frd_juicer}
-  s.version = "1.0.13.2"
+  s.version = "1.0.14.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Florent Ruard-Dumaine"]
@@ -111,17 +111,20 @@ Happy juicing!
       s.add_development_dependency(%q<mocha>, [">= 0.9.8"])
       s.add_development_dependency(%q<fakefs>, [">= 0.2.1"])
       s.add_development_dependency(%q<jeweler>, [">= 0.2.1"])
-      s.add_runtime_dependency(%q<cmdparse>, [">= 0"])
-      s.add_runtime_dependency(%q<nokogiri>, [">= 1.5.0"])
-      s.add_runtime_dependency(%q<rubyzip>, [">= 0"])
+      s.add_development_dependency(%q<fastthread>, [">= 1"])
+     # s.add_runtime_dependency(%q<cmdparse>, [">= 0"])
+     # s.add_runtime_dependency(%q<nokogiri>, [">= 1.5.0"])
+     # s.add_runtime_dependency(%q<rubyzip>, [">= 0"])
     else
       s.add_dependency(%q<cmdparse>, [">= 0"])
       s.add_dependency(%q<nokogiri>, [">= 1.5.0"])
       s.add_dependency(%q<rubyzip>, [">= 0"])
+      s.add_dependency(%q<fastthread>, [">= 1"])
     end
   else
     s.add_dependency(%q<cmdparse>, [">= 0"])
     s.add_dependency(%q<nokogiri>, [">= 1.5.0"])
     s.add_dependency(%q<rubyzip>, [">= 0"])
+    s.add_dependency(%q<fastthread>, [">= 1"])
   end
 end

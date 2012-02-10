@@ -1,4 +1,5 @@
 require "cmdparse"
+require 'fastthread'
 
 # Command line interpreter for Juicer
 #

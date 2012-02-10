@@ -50,18 +50,45 @@ module Juicer
       # type = Either :js or :css. If this parameter is not provided, the type
       #        is guessed from the suffix on the input file name
       def save(file, output = nil, type = nil)
-        type = type.nil? ? file.split('.')[-1].to_sym : type
+        files = file
+        files = [file] if files.is_a?(String)
+        type = type.nil? ? files[0].split('.')[-1].to_sym : type
 
-        output ||= file
-        use_tmp = !output.is_a?(String)
-        output = File.join(Dir::tmpdir, File.basename(file) + '.min.tmp.' + type.to_s) if use_tmp
-        FileUtils.mkdir_p(File.dirname(output))
+        Thread.abort_on_exception = true
 
-        result = execute(%Q{-jar "#{locate_jar}"#{jar_args} -o "#{output}" "#{file}"})
+        mut = Mutex.new
 
-        if use_tmp                            # If no output file is provided, YUI compressor will
-          output.puts IO.read(output)         # compress to a temp file. This file should be cleared
-          File.delete(output)                 # out after we fetch its contents.
+        files.each_with_index do |file,i|
+            while @current_worker == @workers
+                sleep(0.1)
+            end
+            Thread.new do
+                begin
+                    mut.synchronize{ @current_worker += 1 }
+    #                 output ||= file
+    #                 use_tmp = !output.is_a?(String)
+    #                 output = File.join(Dir::tmpdir, File.basename(file) + '.min.tmp.' + type.to_s) if use_tmp
+
+                    out = output[i]
+                    FileUtils.mkdir_p(File.dirname(output[i]))
+
+                    result = execute(%Q{-jar "#{locate_jar}"#{jar_args} -o "#{output[i]}" "#{files[i]}"})
+
+#                     if use_tmp                            # If no output file is provided, YUI compressor will
+#                         out.puts IO.read(out)         # compress to a temp file. This file should be cleared
+#                         File.delete(out)                 # out after we fetch its contents.
+#                     end
+                    mut.synchronize{@current_worker -= 1}
+                rescue => e
+                    "Error on #{files[i]}"
+                    mut.synchronize{@current_worker -= 1}
+                    throw e
+                end
+            end
+        end
+
+        while @current_worker > 0
+            sleep(0.1)
         end
       end
 

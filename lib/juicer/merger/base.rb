@@ -13,6 +13,7 @@ module Juicer
         @root = nil
         @options = options
         @dependency_resolver ||= nil
+        @worker_number = (options[:worker].nil? ? 1 : options[:worker])
         self.append files
       end
 
@@ -42,18 +43,42 @@ module Juicer
       def save(file_or_stream)
         output = file_or_stream
 
+        output_f = nil
         if output.is_a? String
-          @root = Pathname.new(File.dirname(File.expand_path(output)))
-          output = File.open(output, 'w')
+            @root = Pathname.new(File.dirname(File.expand_path(output)))
+            output_f = File.open(output, 'w')
+        elsif !output.is_a? Array
+            @root = Pathname.new(File.expand_path("."))
+            output_f = output
+        end
+
+        if output.is_a?(Array)
+            mut = Mutex.new
+            current_nb_worker = 0
+            @files.each_with_index do |f,i|
+                Thread.new do
+                    mut.synchronize{current_nb_worker += 1}
+                    begin
+                        File.open(output[i], 'w') do |output_f|
+                            output_f.puts(merge(@files[i]))
+                        end
+                    ensure
+                        mut.synchronize{current_nb_worker -= 1}
+                    end
+                end
+                while current_nb_worker == @worker_number
+                    sleep(0.01)
+                end
+            end
+            while current_nb_worker > 0
+                sleep(0.01)
+            end
         else
-          @root = Pathname.new(File.expand_path("."))
+            @files.each do |f|
+                output_f.puts(merge(f))
+            end
+            output_f.close if file_or_stream.is_a? String
         end
-
-        @files.each do |f|
-          output.puts(merge(f))
-        end
-
-        output.close if file_or_stream.is_a? String
       end
 
       chain_method :save

@@ -92,7 +92,6 @@ module Juicer
         if path =~ %r{^/} && @hosts.length > 0
           path = File.join(@hosts[(Digest::MD5.hexdigest(path)[0...10].to_i(16) % @hosts.length)], path)
         end
-
         path
       end
     end

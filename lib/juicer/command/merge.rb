@@ -34,6 +34,10 @@ module Juicer
 
         @log = log || Logger.new(STDOUT)
 
+        @worker_number = 1
+        @separate_output = false
+        @exclude_files = nil
+
         self.short_desc = "Combines and minifies CSS and JavaScript files"
         self.description = <<-EOF
 Each file provided as input will be checked for dependencies to other files,
@@ -75,7 +79,7 @@ the compressor the path should be the path to where the jar file is found.
                            (" " * 37) + "Works with cycled asset hosts. Only valid for CSS files") { |t| @absolute_urls = true }
           opt.on("-d", "--document-root dir", "Path to resolve absolute URLs relative to") { |path| @document_root = path }
           opt.on("-c", "--cache-buster type", "none, soft, rails, or hard. Default is soft, which adds timestamps to\n" +
-                           (" " * 37) + "reference URLs as query parameters. None leaves URLs untouched, rails adds\n" + 
+                           (" " * 37) + "reference URLs as query parameters. None leaves URLs untouched, rails adds\n" +
                            (" " * 37) + "timestamps in the same format as Rails' image_tag helper, and hard alters\n" +
                            (" " * 37) + "file names") do |type|
             @cache_buster = [:soft, :hard, :rails].include?(type.to_sym) ? type.to_sym : nil
@@ -84,6 +88,10 @@ the compressor the path should be the path to where the jar file is found.
                            (" " * 37) + "None leaves URLs untouched. Candiate images must be flagged with '?embed=true to be considered") do |embed|
             @image_embed_type = [:none, :data_uri].include?(embed.to_sym) ? embed.to_sym : nil
           end
+
+          opt.on("-w", "--worker number", "Launch Threaded parallel work on merge tasks") {|wn| @worker_number = wn.to_i }
+          opt.on("", "--separate_output", "Do not merge all minified in one output file, but minify each file separatly") {|so| @separate_output = true}
+          opt.on("", "--exclude pattern", "Exclude pattern file(s) from input files (pattern is same rule of declaring input files)") {|exc| @exclude_files = files(exc)}
         end
       end
 
@@ -95,18 +103,44 @@ the compressor the path should be the path to where the jar file is found.
           raise SystemExit.new("Please provide atleast one input file")
         end
 
+        unless @exclude_files.nil?
+           files.delete_if{|f| !@exclude_files.index(f).nil? }
+        end
+
         # Copy hosts to local_hosts if --all-hosts-local was specified
         @local_hosts = @hosts if @all_hosts_local
 
         # Figure out which file to output to
-        output = output(files.first)
+        output = if !@separate_output
+                    o = output(files.first)
+                    # Warn if file already exists
+                    if File.exists?(o) && !@force
+                        msg = "Unable to continue, #{o} exists. Run again with --force to overwrite"
+                        @log.fatal msg
+                        raise SystemExit.new(msg)
+                    end
+                    o
+                 else
+                     o = files.collect do |f|
+                                of = output(f)
+                                if !@force && File.exists?(of)
+                                    msg = "Unable to continue, #{of} exists. Run again with --force to overwrite"
+                                    @log.fatal msg
+                                    raise SystemExit.new(msg)
+                                end
+                                of
+                     end
+                     o
+                 end
 
-        # Warn if file already exists
-        if File.exists?(output) && !@force
-          msg = "Unable to continue, #{output} exists. Run again with --force to overwrite"
-          @log.fatal msg
-          raise SystemExit.new(msg)
+        if output.class == Array
+            if @type.nil?
+                msg = "Unable to continue, with pattern files selector, you MUST use --type option"
+                @log.fatal msg
+                raise SystemExit.new(msg)
+            end
         end
+
 
         # Set up merger to resolve imports and so on. Do not touch URLs now, if
         # asset host cycling is added at this point, the cache buster WILL be
@@ -114,22 +148,28 @@ the compressor the path should be the path to where the jar file is found.
         merger = merger(output).new(files, :relative_urls => @relative_urls,
                                            :absolute_urls => @absolute_urls,
                                            :document_root => @document_root,
-                                           :hosts => @hosts)
+                                           :hosts => @hosts,
+                                           :worker => @worker_number,
+                                           :separate_output => @separate_output)
 
         # Fail if syntax trouble (js only)
-        if @verify && !Juicer::Command::Verify.check_all(merger.files.reject { |f| f =~ /\.css$/ }, @log)
+        if @verify && !Juicer::Command::Verify.check_all(merger.files.reject { |f| f =~ /\.css$/ }, @log, @worker_number)
           @log.error "Problems were detected during verification"
           raise SystemExit.new("Input files contain problems") unless @ignore
           @log.warn "Ignoring detected problems"
         end
 
         # Set command chain and execute
-        merger.set_next(image_embed(output)).set_next(cache_buster(output)).set_next(minifyer)
+        merger.set_next(image_embed(output)).set_next(cache_buster(output))
         merger.save(output)
+        minifyer.save(output, files, @type)
+
+        output.each {|f| File.delete(f)}
 
         # Print report
-        @log.info "Produced #{relative output} from"
-        merger.files.each { |file| @log.info "  #{relative file}" }
+        @log.info "Produced \n#{relative( (files.is_a?(Array) ? files.join("\n") : files) )} "
+        #"from"
+        #merger.files.each { |file| @log.info "  #{relative file}" }
       rescue FileNotFoundError => err
         # Handle missing document-root option
         puts err.message.sub(/:document_root/, "--document-root")
@@ -144,6 +184,7 @@ the compressor the path should be the path to where the jar file is found.
 
         begin
           @opts[:bin_path] = File.join(Juicer.home, "lib", @minifyer, "bin") unless @opts[:bin_path]
+          @opts[:worker] = @worker_number if @worker_number
           compressor = @minifyer.classify(Juicer::Minifyer).new(@opts)
           compressor.set_opts(@arguments) if @arguments
           @log.debug "Using #{@minifyer.camel_case} for minification"
@@ -188,20 +229,20 @@ the compressor the path should be the path to where the jar file is found.
         Juicer::CssCacheBuster.new(:document_root => @document_root, :type => @cache_buster, :hosts => @local_hosts)
       end
 
-			#
-			# Load image embed, only available for CSS files
-			# 
-			def image_embed(file)
+    #
+    # Load image embed, only available for CSS files
+    #
+    def image_embed(file)
         return nil if !file || file !~ /\.css$/ || @image_embed_type.nil?
         Juicer::ImageEmbed.new(:document_root => @document_root, :type => @image_embed_type )
-			end
+    end
 
       #
       # Generate output file name. Optional argument is a filename to base the new
       # name on. It will prepend the original suffix with ".min"
       #
       def output(file = "#{Time.now.to_i}.tmp")
-        @output = File.dirname(file) if @output.nil?
+        @output = File.dirname(file) if @output.nil? || @separate_output
         @output = File.join(@output, File.basename(file).sub(/\.([^\.]+)$/, '.min.\1')) if File.directory?(@output)
         @output = File.expand_path(@output)
       end
