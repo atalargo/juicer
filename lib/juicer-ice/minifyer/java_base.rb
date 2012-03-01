@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'tempfile'
-require 'juicer/binary'
+require 'juicer-ice/binary'
 
 module Juicer
   module Minifyer

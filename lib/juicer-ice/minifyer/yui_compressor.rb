@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'tempfile'
-require 'juicer/minifyer/java_base'
-require 'juicer/chainable'
+require 'juicer-ice/minifyer/java_base'
+require 'juicer-ice/chainable'
 
 module Juicer
   module Minifyer
