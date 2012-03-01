@@ -1,4 +1,4 @@
-require "juicer/chainable"
+require "juicer-ice/chainable"
 
 # Merge several files into one single output file
 module Juicer

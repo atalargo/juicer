@@ -1,5 +1,5 @@
-require "juicer/command/util"
-require "juicer/command/verify"
+require "juicer-ice/command/util"
+require "juicer-ice/command/verify"
 require "cmdparse"
 require "pathname"
 

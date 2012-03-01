@@ -1,6 +1,6 @@
-require "juicer/chainable"
-require "juicer/cache_buster"
-require "juicer/asset/path_resolver"
+require "juicer-ice/chainable"
+require "juicer-ice/cache_buster"
+require "juicer-ice/asset/path_resolver"
 
 module Juicer
   #

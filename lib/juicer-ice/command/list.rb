@@ -1,4 +1,4 @@
-require "juicer/command/util"
+require "juicer-ice/command/util"
 require "cmdparse"
 require "pathname"
 

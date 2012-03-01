@@ -1,4 +1,4 @@
-require "juicer/binary"
+require "juicer-ice/binary"
 
 module Juicer
   #

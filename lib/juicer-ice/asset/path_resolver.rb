@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require "juicer/asset/path"
+require "juicer-ice/asset/path"
 
 module Juicer
   module Asset
@@ -16,10 +16,10 @@ module Juicer
     #   asset = path_resolver.resolve("../images/logo.png")
     #   asset.document_root
     #   #=> "/var/www"
-    #   
+    #
     #   asset.absolute_path(path_resolver.cycle_hosts)
     #   #=> "http://assets1.mysite.com/images/logo.png"
-    #   
+    #
     #   asset = path_resolver.resolve("/favicon.ico")
     #   asset.absolute_path(path_resolver.cycle_hosts)
     #   #=> "http://assets2.mysite.com/favicon.ico"

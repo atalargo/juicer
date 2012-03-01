@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
-require "juicer/merger/base"
-require "juicer/dependency_resolver/css_dependency_resolver"
+require "juicer-ice/merger/base"
+require "juicer-ice/dependency_resolver/css_dependency_resolver"
 require 'pathname'
 require 'digest/md5'
 

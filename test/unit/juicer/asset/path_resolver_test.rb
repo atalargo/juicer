@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require "test_helper"
-require "juicer/asset/path_resolver"
+require "juicer-ice/asset/path_resolver"
 
 class AssetPathResolverTest < Test::Unit::TestCase
   context "initializing path resolver" do

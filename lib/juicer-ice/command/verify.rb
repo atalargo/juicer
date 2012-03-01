@@ -1,4 +1,4 @@
-require "juicer/command/util"
+require "juicer-ice/command/util"
 require "rubygems"
 require "cmdparse"
 require "pathname"

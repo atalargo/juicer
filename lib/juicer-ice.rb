@@ -3,7 +3,7 @@ require "logger"
 module Juicer
 
   # :stopdoc:
-  VERSION = '1.0.14.1'
+  VERSION = '1.0.14.3'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LOGGER = Logger.new(STDOUT)
@@ -21,11 +21,11 @@ module Juicer
   def self.home
     return @@home if @@home
     return ENV['JUICER_HOME'] if ENV['JUICER_HOME']
-    return File.join(ENV['HOME'], ".juicer") if ENV['HOME']
-    return File.join(ENV['APPDATA'], "juicer") if ENV['APPDATA']
-    return File.join(ENV['HOMEDRIVE'], ENV['HOMEPATH'], "juicer") if ENV['HOMEDRIVE'] && ENV['HOMEPATH']
-    return File.join(ENV['USERPROFILE'], "juicer") if ENV['USERPROFILE']
-    return File.join(ENV['Personal'], "juicer") if ENV['Personal']
+    return File.join(ENV['HOME'], ".juicer-ice") if ENV['HOME']
+    return File.join(ENV['APPDATA'], "juicer-ice") if ENV['APPDATA']
+    return File.join(ENV['HOMEDRIVE'], ENV['HOMEPATH'], "juicer-ice") if ENV['HOMEDRIVE'] && ENV['HOMEPATH']
+    return File.join(ENV['USERPROFILE'], "juicer-ice") if ENV['USERPROFILE']
+    return File.join(ENV['Personal'], "juicer-ice") if ENV['Personal']
   end
 
   # Set home directory
@@ -54,7 +54,7 @@ module Juicer
   # directory below this file.
   def self.require_all_libs
     dir  = File.dirname(File.expand_path(__FILE__))
-    glob = File.join(dir, "juicer", '**', '*.rb')
+    glob = File.join(dir, "juicer-ice", '**', '*.rb')
 
     # Unexpand paths (avoids requiring the same file twice)
     paths = Dir.glob(glob).map { |path| path.sub("#{dir}/", '').sub(/\.rb$/, "") }

@@ -15,7 +15,7 @@ module Juicer
     #
     def parse(arguments = ARGV)
       @cmd = CmdParse::CommandParser.new(true, true)
-      @cmd.program_name = "juicer"
+      @cmd.program_name = "juicer-ice"
       @cmd.program_version = Juicer.version.split(".")
 
       @cmd.options = CmdParse::OptionParserWrapper.new do |opt|

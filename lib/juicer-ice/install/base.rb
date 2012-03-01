@@ -1,7 +1,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'fileutils'
-require "juicer"
+require "juicer-ice"
 
 module Juicer
   module Install

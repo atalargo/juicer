@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require "test_helper"
-require "juicer/asset/path"
+require "juicer-ice/asset/path"
 
 class AssetPathTest < Test::Unit::TestCase
   context "initializing asset" do

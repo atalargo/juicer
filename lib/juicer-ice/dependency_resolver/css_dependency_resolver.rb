@@ -1,4 +1,4 @@
-require "juicer/dependency_resolver/dependency_resolver"
+require "juicer-ice/dependency_resolver/dependency_resolver"
 
 module Juicer
 

@@ -4,59 +4,59 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{frd_juicer}
-  s.version = "1.0.14.1"
+  s.name = %q{juicer-ice}
+  s.version = "1.0.14.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Florent Ruard-Dumaine"]
   s.date = %q{2011-08-30}
   s.platform ="ruby"
 
-  s.default_executable = %q{juicer}
+  s.default_executable = %q{juicer-ice}
   s.description = %q{Resolve dependencies, merge and minify CSS and JavaScript files with Juicer - the command line tool for frontend engineers}
   s.email = %q{christian@cjohansen.no}
-  s.executables = ["juicer"]
+  s.executables = ["juicer-ice"]
   s.files = [
     "History.txt",
     "Manifest.txt",
     "Readme.rdoc",
     "VERSION",
-    "bin/juicer",
+    "bin/juicer-ice",
     "lib/jslint/jslint-rhino.js",
     "lib/jslint/readme",
-    "lib/juicer.rb",
-    "lib/juicer/asset/path.rb",
-    "lib/juicer/asset/path_resolver.rb",
-    "lib/juicer/binary.rb",
-    "lib/juicer/cache_buster.rb",
-    "lib/juicer/chainable.rb",
-    "lib/juicer/cli.rb",
-    "lib/juicer/command/install.rb",
-    "lib/juicer/command/list.rb",
-    "lib/juicer/command/merge.rb",
-    "lib/juicer/command/util.rb",
-    "lib/juicer/command/verify.rb",
-    "lib/juicer/css_cache_buster.rb",
-    "lib/juicer/datafy/datafy.rb",
-    "lib/juicer/dependency_resolver/css_dependency_resolver.rb",
-    "lib/juicer/dependency_resolver/dependency_resolver.rb",
-    "lib/juicer/dependency_resolver/javascript_dependency_resolver.rb",
-    "lib/juicer/ext/logger.rb",
-    "lib/juicer/ext/string.rb",
-    "lib/juicer/ext/symbol.rb",
-    "lib/juicer/image_embed.rb",
-    "lib/juicer/install/base.rb",
-    "lib/juicer/install/closure_compiler_installer.rb",
-    "lib/juicer/install/jslint_installer.rb",
-    "lib/juicer/install/rhino_installer.rb",
-    "lib/juicer/install/yui_compressor_installer.rb",
-    "lib/juicer/jslint.rb",
-    "lib/juicer/merger/base.rb",
-    "lib/juicer/merger/javascript_merger.rb",
-    "lib/juicer/merger/stylesheet_merger.rb",
-    "lib/juicer/minifyer/closure_compiler.rb",
-    "lib/juicer/minifyer/java_base.rb",
-    "lib/juicer/minifyer/yui_compressor.rb"
+    "lib/juicer-ice.rb",
+    "lib/juicer-ice/asset/path.rb",
+    "lib/juicer-ice/asset/path_resolver.rb",
+    "lib/juicer-ice/binary.rb",
+    "lib/juicer-ice/cache_buster.rb",
+    "lib/juicer-ice/chainable.rb",
+    "lib/juicer-ice/cli.rb",
+    "lib/juicer-ice/command/install.rb",
+    "lib/juicer-ice/command/list.rb",
+    "lib/juicer-ice/command/merge.rb",
+    "lib/juicer-ice/command/util.rb",
+    "lib/juicer-ice/command/verify.rb",
+    "lib/juicer-ice/css_cache_buster.rb",
+    "lib/juicer-ice/datafy/datafy.rb",
+    "lib/juicer-ice/dependency_resolver/css_dependency_resolver.rb",
+    "lib/juicer-ice/dependency_resolver/dependency_resolver.rb",
+    "lib/juicer-ice/dependency_resolver/javascript_dependency_resolver.rb",
+    "lib/juicer-ice/ext/logger.rb",
+    "lib/juicer-ice/ext/string.rb",
+    "lib/juicer-ice/ext/symbol.rb",
+    "lib/juicer-ice/image_embed.rb",
+    "lib/juicer-ice/install/base.rb",
+    "lib/juicer-ice/install/closure_compiler_installer.rb",
+    "lib/juicer-ice/install/jslint_installer.rb",
+    "lib/juicer-ice/install/rhino_installer.rb",
+    "lib/juicer-ice/install/yui_compressor_installer.rb",
+    "lib/juicer-ice/jslint.rb",
+    "lib/juicer-ice/merger/base.rb",
+    "lib/juicer-ice/merger/javascript_merger.rb",
+    "lib/juicer-ice/merger/stylesheet_merger.rb",
+    "lib/juicer-ice/minifyer/closure_compiler.rb",
+    "lib/juicer-ice/minifyer/java_base.rb",
+    "lib/juicer-ice/minifyer/yui_compressor.rb"
   ]
   s.homepage = %q{http://github.com/atalargo/juicer}
   s.post_install_message = %q{Juicer does not ship with third party libraries. You probably want to install
@@ -68,7 +68,7 @@ juicer install jslint
 Happy juicing!
 }
   s.require_paths = ["lib"]
-  s.rubyforge_project = %q{juicer}
+  s.rubyforge_project = %q{juicer-ice}
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{Command line tool for CSS and JavaScript developers}
   s.test_files = [
