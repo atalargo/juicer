@@ -89,6 +89,7 @@ module Juicer
         end
 
         # Cycle hosts, if any
+        # Host choice use similar code than host assets chooser from Symfony2, that it's useful when you use juicer to deploy SF2 application
         if path =~ %r{^/} && @hosts.length > 0
           path = File.join(@hosts[(Digest::MD5.hexdigest(path)[0...10].to_i(16) % @hosts.length)], path)
         end
