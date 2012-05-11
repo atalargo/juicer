@@ -13,9 +13,9 @@ This fork add the next features :
 
   For the multi threaded feature, the following options are added to merge command :
 
-** -w | --worker_number : default is one, number of threads to launch
-** --separate_ouput : Do not merge all minified in one output file, but minify each file separatly
-** --exclude pattern : Exclude pattern file(s) from input files (pattern is same rule of declaring input files)
+* -w | --worker_number : default is one, number of threads to launch
+* --separate_ouput : Do not merge all minified in one output file, but minify each file separatly
+* --exclude pattern : Exclude pattern file(s) from input files (pattern is same rule of declaring input files)
 
 
 = Original Readme of Juicer
