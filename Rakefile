@@ -6,7 +6,7 @@ require 'rake/rdoctask'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "juicer"
+    gem.name = "juicer-ice"
     gem.summary = "Command line tool for CSS and JavaScript developers"
     gem.description = "Resolve dependencies, merge and minify CSS and JavaScript files with Juicer - the command line tool for frontend engineers"
     gem.email = "christian@cjohansen.no"
@@ -21,7 +21,7 @@ begin
     gem.add_dependency "cmdparse"
     gem.add_dependency "nokogiri", ">= 1.5.0"
     gem.add_dependency "rubyzip"
-    gem.executables = ["juicer"]
+    gem.executables = ["juicer-ice"]
     gem.post_install_message = <<-MSG
 Juicer does not ship with third party libraries. You probably want to install
 Yui Compressor and JsLint now:
