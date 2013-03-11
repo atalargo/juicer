@@ -128,14 +128,17 @@ module Juicer
     # something.
     #
     def locate(bin_glob, env = nil)
-      path << ENV[env] if env && ENV.key?(env) && File.exist?(ENV[env])
+        if env && ENV.key?(env) && File.exist?(ENV[env])
+            path << ENV[env]
+        else
+            path << env if env && File.exist?(env)
+        end
+        (path << Dir.pwd).each do |path|
+            files = Dir.glob(File.expand_path(File.join(path, bin_glob)))
+            return files unless files.empty?
+        end
 
-      (path << Dir.pwd).each do |path|
-        files = Dir.glob(File.expand_path(File.join(path, bin_glob)))
-        return files unless files.empty?
-      end
-
-      nil
+        nil
     end
 
     # Allows for options to be set and read directly on the object as though they were

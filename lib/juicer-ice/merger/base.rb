@@ -1,4 +1,6 @@
 require "juicer-ice/chainable"
+require 'monitor'
+require 'thread'
 
 # Merge several files into one single output file
 module Juicer
@@ -44,36 +46,63 @@ module Juicer
         output = file_or_stream
 
         output_f = nil
-        if output.is_a? String
-            @root = Pathname.new(File.dirname(File.expand_path(output)))
-            output_f = File.open(output, 'w')
-        elsif !output.is_a? Array
+
+        if output.is_a?(Hash)
             @root = Pathname.new(File.expand_path("."))
             output_f = output
-        end
 
-        if output.is_a?(Array)
-            mut = Mutex.new
             current_nb_worker = 0
-            @files.each_with_index do |f,i|
-                Thread.new do
-                    mut.synchronize{current_nb_worker += 1}
-                    begin
-                        File.open(output[i], 'w') do |output_f|
-                            output_f.puts(merge(@files[i]))
+            threads = Array.new(@worker_number)
+            work_queue = SizedQueue.new(@worker_number)
+            threads.extend(MonitorMixin)
+            threads_available = threads.new_cond
+
+            consumerThread = Thread.new do
+                loop do
+                    found_index = nil
+
+                    threads.synchronize do
+                        threads_available.wait_while do
+                            threads.select { |thread| thread.nil? || thread.status == false || thread['finished'].nil? == false}.length == 0
                         end
-                    ensure
-                        mut.synchronize{current_nb_worker -= 1}
+                        found_index = threads.index { |thread| thread.nil? || thread.status == false || thread["finished"].nil? == false }
+                    end
+
+                    currency = work_queue.pop
+
+                    threads[found_index] = Thread.new(currency) do
+
+                        File.open(output[currency], 'w') do |output_f|
+                                output_f.puts(merge(currency))
+                        end
+
+                        Thread.current["finished"] = true
+
+                        threads.synchronize do
+                            threads_available.signal
+                        end
+                    end
+
+                end
+            end
+
+            producer_thread = Thread.new do
+                @files.each do |f|
+                    work_queue << f
+                    threads.synchronize do
+                        threads_available.signal
                     end
                 end
-                while current_nb_worker == @worker_number
-                    sleep(0.01)
-                end
             end
-            while current_nb_worker > 0
-                sleep(0.01)
+
+            producer_thread.join
+
+            threads.each do |thread|
+                thread.join
             end
         else
+            @root = Pathname.new(File.dirname(File.expand_path(output)))
+            output_f = File.open(output, 'w')
             @files.each do |f|
                 output_f.puts(merge(f))
             end

@@ -116,16 +116,19 @@ Happy juicing!
       s.add_runtime_dependency(%q<nokogiri>, [">= 1.5.0"])
       s.add_runtime_dependency(%q<rubyzip>, [">= 0"])
       s.add_runtime_dependency(%q<fastthread>, [">= 1"])
+      s.add_runtime_dependency(%q<monitor>)
     else
       s.add_dependency(%q<cmdparse>, [">= 0"])
       s.add_dependency(%q<nokogiri>, [">= 1.5.0"])
       s.add_dependency(%q<rubyzip>, [">= 0"])
       s.add_dependency(%q<fastthread>, [">= 1"])
+      s.add_runtime_dependency(%q<monitor>)
     end
   else
     s.add_dependency(%q<cmdparse>, [">= 0"])
     s.add_dependency(%q<nokogiri>, [">= 1.5.0"])
     s.add_dependency(%q<rubyzip>, [">= 0"])
     s.add_dependency(%q<fastthread>, [">= 1"])
+    s.add_runtime_dependency(%q<monitor>)
   end
 end

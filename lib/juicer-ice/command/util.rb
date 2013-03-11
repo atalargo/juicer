@@ -10,7 +10,7 @@ module Juicer
       # even be an array of mixed input.
       #
       def files(*args)
-        args.flatten.collect { |file| Dir.glob(file) }.flatten
+          args.flatten.collect { |file| Dir.glob(file) }.flatten
       end
 
       #

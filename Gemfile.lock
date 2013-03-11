@@ -1,30 +1,15 @@
-PATH
-  remote: .
-  specs:
-    frd_juicer (1.0.13.3.1)
-
 GEM
   remote: http://rubygems.org/
   specs:
-    fakefs (0.3.2)
+    cmdparse (2.0.5)
     fastthread (1.0.7)
-    git (1.2.5)
-    jeweler (1.6.0)
-      bundler (~> 1.0.0)
-      git (>= 1.2.5)
-      rake
-    mocha (0.9.12)
-    rake (0.9.0)
-    shoulda (2.11.3)
+    zip (2.0.2)
 
 PLATFORMS
   ruby
   x86-mingw32
 
 DEPENDENCIES
-  fakefs (>= 0.2.1)
-  fastthread (>= 1)
-  frd_juicer!
-  jeweler (>= 0.2.1)
-  mocha (>= 0.9.8)
-  shoulda (>= 2.10.2)
+  cmdparse
+  fastthread
+  zip

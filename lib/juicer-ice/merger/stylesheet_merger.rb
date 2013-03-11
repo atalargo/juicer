@@ -19,12 +19,14 @@ module Juicer
       #
       def initialize(files = [], options = {})
         @dependency_resolver = CssDependencyResolver.new(options)
+        @dependency_resolver = nil
         super(files || [], options)
         @hosts = options[:hosts] || []
         @use_absolute = options.key?(:absolute_urls) ? options[:absolute_urls] : false
         @use_relative = options.key?(:relative_urls) ? options[:relative_urls] : false
         @document_root = options[:document_root]
         @document_root = File.expand_path(@document_root).sub(/\/?$/, "") if @document_root # Make sure path doesn't end in a /
+	@delete_import = options[:no_delete_import].nil?
       end
 
      private
@@ -53,15 +55,17 @@ module Juicer
       # for all absolute URLs regardless of absolute/relative URL strategy.
       #
       def merge(file)
-        content = super.gsub(/^\s*@import(?:\surl\(|\s)(['"]?)([^\?'"\)\s]+)(\?(?:[^'"\)]*))?\1\)?(?:[^?;]*);?/i, "")
         dir = File.expand_path(File.dirname(file))
 
-        content.scan(/url\([\s"']*([^\)"'\s]*)[\s"']*\)/m).uniq.collect do |url|
+	content = super
+        content.gsub!(/^\s*@import(?:\surl\(|\s)(['"]?)([^\?'"\)\s]+)(\?(?:[^'"\)]*))?\1\)?(?:[^?;]*);?/i, "") if @delete_import
+
+        content.scan(/[^\s*@import]\s*url\([\s"']*([^\)"'\s]*)[\s"']*\)/mi).uniq.collect do |url|
+# /url\([\s"']*([^\)"'\s]*)[\s"']*\)/m).uniq.collect do |url|
           url = url.first
           path = resolve_path(url, dir)
           content.gsub!(/\([\s"']*#{url}[\s"']*\)/m, "(#{path})") unless path == url
         end
-
         content
       end
 

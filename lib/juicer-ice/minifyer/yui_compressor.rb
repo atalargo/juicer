@@ -3,6 +3,8 @@ require 'tempfile'
 require 'juicer-ice/minifyer/java_base'
 require 'juicer-ice/chainable'
 
+require 'monitor'
+require 'thread'
 module Juicer
   module Minifyer
 
@@ -56,40 +58,58 @@ module Juicer
 
         Thread.abort_on_exception = true
 
-        mut = Mutex.new
+#         mut = Mutex.new
 
-        files.each_with_index do |file,i|
-            while @current_worker == @workers
-                sleep(0.1)
+        lo_jar = locate_jar
+
+
+        current_nb_worker = 0
+        threads = Array.new(@workers)
+        work_queue = SizedQueue.new(@workers)
+        threads.extend(MonitorMixin)
+        threads_available = threads.new_cond
+
+        consumerThread = Thread.new do
+            loop do
+                found_index = nil
+
+                threads.synchronize do
+                    threads_available.wait_while do
+                        threads.select { |thread| thread.nil? || thread.status == false || thread['finished'].nil? == false}.length == 0
+                    end
+                    found_index = threads.index { |thread| thread.nil? || thread.status == false || thread["finished"].nil? == false }
+                end
+
+                currency = work_queue.pop
+
+                threads[found_index] = Thread.new(currency) do
+
+                    FileUtils.mkdir_p(File.dirname(currency[:output]))
+                    result = execute(%Q{-jar "#{lo_jar}"#{jar_args} -o "#{currency[:output]}" "#{currency[:input]}"})
+
+                    threads.synchronize do
+                        threads_available.signal
+                    end
+                end
+
             end
-            Thread.new do
-                begin
-                    mut.synchronize{ @current_worker += 1 }
-    #                 output ||= file
-    #                 use_tmp = !output.is_a?(String)
-    #                 output = File.join(Dir::tmpdir, File.basename(file) + '.min.tmp.' + type.to_s) if use_tmp
+        end
 
-                    out = output[i]
-                    FileUtils.mkdir_p(File.dirname(output[i]))
-
-                    result = execute(%Q{-jar "#{locate_jar}"#{jar_args} -o "#{output[i]}" "#{files[i]}"})
-
-#                     if use_tmp                            # If no output file is provided, YUI compressor will
-#                         out.puts IO.read(out)         # compress to a temp file. This file should be cleared
-#                         File.delete(out)                 # out after we fetch its contents.
-#                     end
-                    mut.synchronize{@current_worker -= 1}
-                rescue => e
-                    "Error on #{files[i]}"
-                    mut.synchronize{@current_worker -= 1}
-                    throw e
+        producer_thread = Thread.new do
+            files.each_pair do |fileo, filem|
+                work_queue << {:output => fileo, :input => filem}
+                threads.synchronize do
+                    threads_available.signal
                 end
             end
         end
 
-        while @current_worker > 0
-            sleep(0.1)
+        producer_thread.join
+
+        threads.each do |thread|
+            thread.join
         end
+
       end
 
       chain_method :save

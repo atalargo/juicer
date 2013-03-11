@@ -30,7 +30,8 @@ module Juicer
         @absolute_urls = false          # Make the merger use absolute URLs
         @local_hosts = []               # Host names that are served from :document_root
         @verify = true                  # Verify js files with JsLint
-				@image_embed_type = :none       # Embed images in css files, options are :none, :data_uri
+        @image_embed_type = :none       # Embed images in css files, options are :none, :data_uri
+        @no_delete_import = true
 
         @log = log || Logger.new(STDOUT)
 
@@ -89,6 +90,8 @@ the compressor the path should be the path to where the jar file is found.
             @image_embed_type = [:none, :data_uri].include?(embed.to_sym) ? embed.to_sym : nil
           end
 
+          opt.on("", "--no-delete-import",' df fgdf') { @no_delete_import = true}
+
           opt.on("-w", "--worker number", "Launch Threaded parallel work on merge tasks") {|wn| @worker_number = wn.to_i }
           opt.on("", "--separate_output", "Do not merge all minified in one output file, but minify each file separatly") {|so| @separate_output = true}
           opt.on("", "--exclude pattern", "Exclude pattern file(s) from input files (pattern is same rule of declaring input files)") {|exc| @exclude_files = files(exc)}
@@ -121,26 +124,26 @@ the compressor the path should be the path to where the jar file is found.
                     end
                     o
                  else
-                     o = files.collect do |f|
-                                of = output(f)
+                     otpt = {}
+                     files.each do |f|
+                                of  = output(f)
                                 if !@force && File.exists?(of)
                                     msg = "Unable to continue, #{of} exists. Run again with --force to overwrite"
                                     @log.fatal msg
                                     raise SystemExit.new(msg)
                                 end
-                                of
+                                otpt[f] = of
                      end
-                     o
+                     otpt
                  end
 
-        if output.class == Array
+        if output.class == Hash
             if @type.nil?
                 msg = "Unable to continue, with pattern files selector, you MUST use --type option"
                 @log.fatal msg
                 raise SystemExit.new(msg)
             end
         end
-
 
         # Set up merger to resolve imports and so on. Do not touch URLs now, if
         # asset host cycling is added at this point, the cache buster WILL be
@@ -150,7 +153,9 @@ the compressor the path should be the path to where the jar file is found.
                                            :document_root => @document_root,
                                            :hosts => @hosts,
                                            :worker => @worker_number,
-                                           :separate_output => @separate_output)
+                                           :separate_output => @separate_output,
+                                           :no_delete_import => @no_delete_import
+                                   )
 
         # Fail if syntax trouble (js only)
         if @verify && !Juicer::Command::Verify.check_all(merger.files.reject { |f| f =~ /\.css$/ }, @log, @worker_number)
@@ -164,7 +169,7 @@ the compressor the path should be the path to where the jar file is found.
         merger.save(output)
         minifyer.save(output, files, @type)
 
-        output.each {|f| File.delete(f)}
+#         output.each_value {|f| File.delete(f)}
 
         # Print report
         @log.info "Produced \n#{relative( (files.is_a?(Array) ? files.join("\n") : files) )} "
@@ -202,7 +207,7 @@ the compressor the path should be the path to where the jar file is found.
           @log.fatal e.message
           raise SystemExit.new(e.message)
         end
-
+exit
         nil
       end
 
