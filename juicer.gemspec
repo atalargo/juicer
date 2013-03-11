@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{juicer-ice}
-  s.version = "1.0.14.6"
+  s.version = "1.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Florent Ruard-Dumaine"]
